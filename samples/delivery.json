@@ -1,0 +1,43 @@
+{
+  "batch_id": "sample-delivery",
+  "tables": {
+    "sites": [
+      {
+        "site_id": "paris",
+        "timezone": "Europe/Paris",
+        "label": "法国站"
+      },
+      {
+        "site_id": "tokyo",
+        "timezone": "Asia/Tokyo",
+        "label": "日本站"
+      }
+    ],
+    "events": [
+      {
+        "site_id": "paris",
+        "event_id": "e1",
+        "visitor_id": "anon-1",
+        "occurred_at": "2026-11-09T22:40:00Z",
+        "received_at": "2026-11-09T22:41:00Z",
+        "page": "/music"
+      },
+      {
+        "site_id": "paris",
+        "event_id": "e2",
+        "visitor_id": "anon-1",
+        "occurred_at": "2026-11-09T23:25:00Z",
+        "received_at": "2026-11-09T23:26:00Z",
+        "page": "/story"
+      },
+      {
+        "site_id": "tokyo",
+        "event_id": "e1",
+        "visitor_id": "anon-1",
+        "occurred_at": "2026-11-09T22:40:00Z",
+        "received_at": "2026-11-09T22:41:00Z",
+        "page": "/home"
+      }
+    ]
+  }
+}
