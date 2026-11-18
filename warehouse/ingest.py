@@ -1,4 +1,5 @@
 from .contracts import normalize
+from .sessions import build_site_facts
 from .storage import canonical, digest, transaction
 from .tables import TABLES
 
@@ -47,4 +48,9 @@ def ingest(connection, payload):
                 [table, canonical([row[key] for key in keys]), serialized, batch])
             inserted += 1
         connection.execute('INSERT INTO receipts VALUES (?,?,?)', [batch, signature, inserted])
+        touched = {row['site_id'] for row in payload['tables'].get('sites', [])}
+        touched.update(row['site_id'] for row in payload['tables'].get('events', []))
+        known = {row[0] for row in connection.execute('SELECT site_id FROM sites').fetchall()}
+        for site in sorted(touched & known):
+            build_site_facts(connection, site, 'ingest')
     return {'batch_id': batch, 'inserted': inserted, 'replayed': False}

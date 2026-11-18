@@ -8,9 +8,23 @@ import duckdb
 
 def open_store(path):
     connection = duckdb.connect(str(path))
-    connection.execute("SET threads=1")
+    connection.execute('SET threads=1')
+    connection.execute("SET TimeZone='UTC'")
     connection.execute(Path(__file__).with_name('schema.sql').read_text())
+    _migrate(connection)
     return connection
+
+
+def _migrate(connection):
+    """Add session-fact columns to stores created before they existed."""
+    additions = {'site_days': {'sessions': 'INTEGER', 'state': 'VARCHAR'}}
+    for table, columns in additions.items():
+        existing = {row[0] for row in connection.execute(
+            "SELECT column_name FROM information_schema.columns WHERE table_name=?",
+            [table]).fetchall()}
+        for name, kind in columns.items():
+            if name not in existing:
+                connection.execute('ALTER TABLE "' + table + '" ADD COLUMN "' + name + '" ' + kind)
 
 
 def records(connection, query, parameters=None):

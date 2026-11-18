@@ -1,17 +1,19 @@
-from .events import local_hits,timeline
-from .storage import digest,records,transaction
+from .events import timeline
+from .sessions import build_site_facts, read_day_facts
+from .storage import transaction
 
 
 def refresh_days(connection,site):
-    events=timeline(connection,site)
-    signature=digest(events)
-    totals=local_hits(connection,site)
+    """Refresh the combined daily mart for one site.
+
+    The mart is produced from accepted session facts, so visit counts here and
+    the exposure detail in :mod:`warehouse.sessions` cannot disagree.
+    """
+    timeline(connection,site)
     with transaction(connection):
-        connection.execute('DELETE FROM site_days WHERE site_id=?',[site])
-        for row in totals:
-            connection.execute('INSERT INTO site_days VALUES (?,?,?,?,?)',[site,row['day'],row['hits'],row['visitors'],signature])
-    return totals
+        build_site_facts(connection,site)
+    return read_days(connection,site)
 
 
 def read_days(connection,site):
-    return records(connection,'SELECT * FROM site_days WHERE site_id=? ORDER BY day',[site])
+    return read_day_facts(connection,site)
